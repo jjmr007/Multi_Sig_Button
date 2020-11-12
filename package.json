@@ -1,9 +1,13 @@
 {
-  "name": "y",
+  "name": "confirm-transactions",
   "version": "0.1.0",
   "description": "Interface to a MultiSigWallet",
-  "main": "index.js",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
+    "dev": "lite-server",
     "test": "npm test"
   },
   "repository": {
@@ -18,6 +22,10 @@
   ],
   "author": "Julio Moros",
   "license": "Apache-2.0",
+  "devDependencies": {
+    "lite-server": "^2.6.1",
+    "truffle": "5.1.52"
+  },
   "bugs": {
     "url": "https://github.com/jjmr007/Multi_Sig_Button/issues"
   },
