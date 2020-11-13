@@ -29,5 +29,8 @@
   "bugs": {
     "url": "https://github.com/jjmr007/Multi_Sig_Button/issues"
   },
-  "homepage": "https://github.com/jjmr007/Multi_Sig_Button#readme"
+  "homepage": "https://github.com/jjmr007/Multi_Sig_Button#readme",
+  "dependencies": {
+    "web3": "^1.3.0"
+  }
 }

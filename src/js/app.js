@@ -24,12 +24,12 @@ App = {
     if (window.ethereum) {
       window.web3 = new Web3(ethereum);
       try {
-        // Request account access if needed
+        // Request user for permission
         await ethereum.enable();
-        // Acccounts now exposed
-        web3.eth.sendTransaction({/* ... */});
+        // user approved permission
       } catch (error) {
         // User denied account access...
+        console.log('user rejected permission');
       }
     }
     // Legacy dapp browsers...
@@ -37,7 +37,6 @@ App = {
       App.web3Provider = web3.currentProvider;
       window.web3 = new Web3(web3.currentProvider);
       // Acccounts always exposed
-      web3.eth.sendTransaction({/* ... */});
     }
     // Non-dapp browsers...
     else {
@@ -69,9 +68,21 @@ App = {
     content.hide();
 
     // Load blockchain data
-    console.log(web3.eth.accounts)
-    App.account = web3.eth.accounts[0];
-    console.log("Your Account:", App.account);
+    // web3.eth.accounts has been depreciated
+    // https://web3js.readthedocs.io/en/v1.3.0/web3-eth.html#getaccounts
+    web3.eth.getAccounts((err, accounts)=>{
+      if(err != null) {
+        alert("Error getting accounts.");
+        return;
+      }
+      if (accounts.length == 0) {
+        alert("No account found! Make sure the Ethereum client is configured properly.");
+        return;
+      }
+      console.log(accounts);
+      App.account = accounts[0];
+      console.log("Your Account:", App.account);
+    })
 
     App.contracts.Verification.deployed().then((contract) => {
       App.contractInstance = contract;
@@ -89,38 +100,21 @@ App = {
     $("#content").hide();
     $("#loader").show();
 
-    const message = web3.hexToNumber( toHex( $('#message').val() ) )
-    console.log('Transaction Id', message)
-
-    web3.eth.sign(App.account, web3.sha3(message), function (err, result) {
-      console.log(err, result)
-      $('form').trigger('reset')
-      App.msg = message
-      $('#msg').html('Transaction Id number:' + ' ' + message)
-      App.signature = result
-      $('#signature').html('signature:' + ' ' + result)
-      $('#verify').show()
-      $("#content").show();
-      $("#loader").hide();
-      window.alert('Message signed!')
-    })
-  },
-
-  verify: () => {
-    $("#content").hide();
-    $("#loader").show();
-
-    App.contractInstance.confirmTransaction(App.msg).then(function(result) {
-      console.log('Recover', result)
-      $('#address').html('Transaction Confirmed:' + ' ' + result)
-    }).catch((err) => {
-      console.error(err);
-      window.alert("There was an error confirming transaction.")
-    });
-
+    const message = $('#message').val();
+    console.log('Transaction Id', message);
+    App.msg = message;
+    App.contractInstance.confirmTransaction(App.msg).send({from: App.account}).then(function(tx) {
+    console.log("Transaction: ", tx);
+    $('form').trigger('reset');
+    $('#msg').html('Transaction Id number:' + ' ' + message);
+    App.signature = tx;
+    $('#signature').html('transaction confirmation:' + ' ' + tx);
     $("#content").show();
     $("#loader").hide();
-  }
+  });
+  $("#newInfo").val('');
+}
+ 
 };
 
 $(() => {
